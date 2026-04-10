@@ -1,6 +1,4 @@
 node_modules
 dist
 *.tsbuildinfo
-public/media/image.*
-public/media/audio.*
 *:Zone.Identifier

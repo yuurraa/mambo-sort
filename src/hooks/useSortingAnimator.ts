@@ -110,13 +110,14 @@ export function useSortingAnimator({
     accumulatedElapsedMsRef.current = elapsedMs;
     stopLoop();
 
+    const visibleLength = stateRef.current.array.length;
     const completeState: VisualState = {
       ...stateRef.current,
       comparing: [],
       swapping: [],
       pivotIndex: null,
       currentStepType: null,
-      sorted: initialArrayRef.current.map((_, index) => index),
+      sorted: Array.from({ length: visibleLength }, (_, index) => index),
       stepIndex: stepIndexRef.current,
       elapsedMs,
       status: 'completed',
@@ -286,7 +287,7 @@ export function useSortingAnimator({
             value: currentState.array[index],
             segmentId: getSegmentId(currentState.array[index]),
           })),
-          arrayLength: nextArray.length,
+          arrayLength: initialArrayRef.current.length,
         };
         break;
       case 'swap': {
@@ -298,7 +299,7 @@ export function useSortingAnimator({
             value: currentState.array[index],
             segmentId: getSegmentId(currentState.array[index]),
           })),
-          arrayLength: nextArray.length,
+          arrayLength: initialArrayRef.current.length,
         };
         const [leftIndex, rightIndex] = step.indices;
         [nextArray[leftIndex], nextArray[rightIndex]] = [
@@ -307,6 +308,9 @@ export function useSortingAnimator({
         ];
         break;
       }
+      case 'delete':
+        nextArray.splice(step.indices[0] ?? 0, 1);
+        break;
       case 'mark-sorted':
         break;
       case 'set-pivot':

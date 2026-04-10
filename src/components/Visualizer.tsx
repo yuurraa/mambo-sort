@@ -45,6 +45,7 @@ const algorithms: SortAlgorithm[] = [
   'merge',
   'counting',
   'heap',
+  'stalin',
   'bogo',
 ];
 
@@ -113,10 +114,10 @@ export function Visualizer({
 
     return {
       backgroundImage: `url(${imageUrl})`,
-      backgroundSize: `${values.length * 100}% 100%`,
+      backgroundSize: `${arraySize * 100}% 100%`,
       backgroundPosition: getSegmentBackgroundPosition(
         getSegmentId(value),
-        values.length,
+        arraySize,
       ),
     };
   }
@@ -204,7 +205,7 @@ export function Visualizer({
                 >
                   <span className="algorithm-dropdown-value">
                     {algorithmLabel(algorithm)}
-                    {algorithm === 'bogo' ? (
+                    {algorithm === 'bogo' || algorithm === 'stalin' ? (
                       <span className="algorithm-warning-badge" aria-label="Bogo sort warning">
                         (!)
                       </span>
@@ -233,7 +234,7 @@ export function Visualizer({
                           }}
                         >
                           <span>{algorithmLabel(option)}</span>
-                          {option === 'bogo' ? (
+                          {option === 'bogo' || option === 'stalin' ? (
                             <span className="algorithm-warning-badge" aria-hidden="true">
                               (!)
                             </span>

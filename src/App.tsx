@@ -22,6 +22,7 @@ import {
   MEDIA_AUDIO_URL,
   MEDIA_IMAGE_URL,
   checkAudioAsset,
+  getSegmentId,
   loadImageAsset,
 } from './utils/media';
 
@@ -161,10 +162,11 @@ export default function App() {
     completedPassKeyRef.current = completionKey;
 
     void segmentAudioEngineRef.current.playFinalPass({
-      segmentCount: array.length,
-      onSegmentStart: (segmentIndex) => {
+      segmentIds: array.map((value) => getSegmentId(value)),
+      segmentCount: arraySize,
+      onSegmentStart: (playIndex) => {
         if (isMountedRef.current) {
-          setFinalPassIndex(segmentIndex);
+          setFinalPassIndex(playIndex);
         }
       },
       onComplete: () => {

@@ -48,6 +48,8 @@ export function algorithmLabel(algorithm: SortAlgorithm): string {
       return 'Counting Sort';
     case 'heap':
       return 'Heap Sort';
+    case 'stalin':
+      return 'Stalin Sort';
     case 'bogo':
       return 'Bogo Sort';
   }

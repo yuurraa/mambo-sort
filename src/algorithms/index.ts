@@ -8,6 +8,10 @@ function swap(indices: number[]): SortStep {
   return { type: 'swap', indices };
 }
 
+function remove(indices: number[]): SortStep {
+  return { type: 'delete', indices };
+}
+
 function markSorted(index: number): SortStep {
   return { type: 'mark-sorted', indices: [index] };
 }
@@ -190,6 +194,33 @@ function mergeSortSteps(input: number[]): SortStep[] {
   return [...steps, ...markAllSorted(values.length)];
 }
 
+function stalinSortSteps(input: number[]): SortStep[] {
+  const values = [...input];
+  const steps: SortStep[] = [];
+
+  if (values.length <= 1) {
+    return values.length === 1 ? [markSorted(0)] : [];
+  }
+
+  let currentMaximum = values[0];
+  let index = 1;
+
+  while (index < values.length) {
+    steps.push(compare([index - 1, index]));
+
+    if (values[index] >= currentMaximum) {
+      currentMaximum = values[index];
+      index += 1;
+      continue;
+    }
+
+    steps.push(remove([index]));
+    values.splice(index, 1);
+  }
+
+  return [...steps, ...markAllSorted(values.length)];
+}
+
 function countingSortSteps(input: number[]): SortStep[] {
   const values = [...input];
   const steps: SortStep[] = [];
@@ -311,6 +342,8 @@ export function generateSortSteps(
       return quickSortSteps(input);
     case 'merge':
       return mergeSortSteps(input);
+    case 'stalin':
+      return stalinSortSteps(input);
     case 'counting':
       return countingSortSteps(input);
     case 'heap':

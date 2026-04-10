@@ -11,6 +11,7 @@ type SegmentPlaybackRequest = {
 };
 
 type FinalPassPlaybackRequest = {
+  segmentIds: number[];
   segmentCount: number;
   onSegmentStart?: (segmentIndex: number) => void;
   onComplete?: () => void;
@@ -135,13 +136,14 @@ export class SegmentAudioEngine {
   }
 
   async playFinalPass({
+    segmentIds,
     segmentCount,
     onSegmentStart,
     onComplete,
   }: FinalPassPlaybackRequest): Promise<void> {
     await this.prepare();
 
-    if (!this.context || !this.buffer || segmentCount <= 0) {
+    if (!this.context || !this.buffer || segmentCount <= 0 || segmentIds.length === 0) {
       return;
     }
 
@@ -150,14 +152,13 @@ export class SegmentAudioEngine {
 
     this.stop();
 
-    Array.from({ length: segmentCount }, (_, segmentId) => segmentId).forEach(
-      (segmentId) => {
+    segmentIds.forEach((segmentId, playIndex) => {
         const startOffset = segmentId * segmentDuration;
         const playableDuration = Math.max(
           0.03,
           Math.min(segmentDuration, this.buffer!.duration - startOffset),
         );
-        const startAt = now + segmentId * segmentDuration;
+        const startAt = now + playIndex * segmentDuration;
         const fadeDuration = Math.min(0.018, playableDuration * 0.22);
         const fadeOutAt = Math.max(
           startAt + fadeDuration,
@@ -202,16 +203,15 @@ export class SegmentAudioEngine {
         this.activeNodes.push({ source, gain, panner });
 
         const startTimer = window.setTimeout(() => {
-          onSegmentStart?.(segmentId);
+          onSegmentStart?.(playIndex);
         }, Math.max(0, (startAt - now) * 1000));
 
         this.activeTimers.push(startTimer);
-      },
-    );
+      });
 
     const completeTimer = window.setTimeout(() => {
       onComplete?.();
-    }, Math.max(0, segmentCount * segmentDuration * 1000 + 20));
+    }, Math.max(0, segmentIds.length * segmentDuration * 1000 + 20));
 
     this.activeTimers.push(completeTimer);
   }

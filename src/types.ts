@@ -5,11 +5,13 @@ export type SortAlgorithm =
   | 'merge'
   | 'counting'
   | 'heap'
+  | 'stalin'
   | 'bogo';
 
 export type SortStepType =
   | 'compare'
   | 'swap'
+  | 'delete'
   | 'mark-sorted'
   | 'set-pivot'
   | 'clear-pivot';

@@ -53,6 +53,10 @@
   filter: drop-shadow(0 10px 22px rgba(62, 189, 255, 0.22));
 }
 
+.panel-title-icon-left {
+  transform: scaleX(-1);
+}
+
 .panel-copy h1,
 .visualizer-head h2 {
   margin: 0.15rem 0 0;

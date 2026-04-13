@@ -16,9 +16,9 @@ function formatElapsedTime(elapsedMs: number): string {
   const seconds = totalSeconds % 60;
   const milliseconds = totalMilliseconds % 1000;
 
-  return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds
+  return `${minutes.toString().padStart(2, '0')}:${seconds
     .toString()
-    .padStart(3, '0')}`;
+    .padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
 }
 
 export function ControlPanel({
@@ -36,7 +36,7 @@ export function ControlPanel({
       <div className="panel-copy">
         <div className="panel-title-row">
           <img
-            className="panel-title-icon"
+            className="panel-title-icon panel-title-icon-left"
             src="/assets/header.png"
             alt=""
             aria-hidden="true"

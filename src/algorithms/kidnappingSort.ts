@@ -3,10 +3,8 @@ import { compare, markSorted, swap } from './steps';
 
 const KIDNAP_CHANCE = 0.05;
 const KIDNAP_SEGMENT_RATIO = 0.1;
-const MERGE_KIDNAP_ROLL_INTERVAL = 12;
-const HOLD_STEPS = 44;
+const MERGE_KIDNAP_ROLL_INTERVAL = 20;
 const MIN_KIDNAPPED = 5;
-const RETURN_HOLD_MS = 1000;
 
 type SortFrame = {
   type: 'sort';
@@ -102,10 +100,7 @@ function redistributeHostages(
     ];
   });
 
-  steps.push({
-    ...tagged(compare(returnIndices), 'Returning'),
-    durationMs: RETURN_HOLD_MS,
-  });
+  steps.push(tagged(compare(returnIndices), 'Returning'));
 }
 
 function enqueueKidnapping(
@@ -120,9 +115,7 @@ function enqueueKidnapping(
 
   const kidnappedIndices = createKidnappedIndices(startIndex, endIndex);
 
-  for (let holdIndex = 0; holdIndex < HOLD_STEPS; holdIndex += 1) {
-    pendingSteps.push(tagged(compare(kidnappedIndices), 'Kidnapping'));
-  }
+  pendingSteps.push(tagged(compare(kidnappedIndices), 'Kidnapping'));
 
   redistributeHostages(values, pendingSteps, kidnappedIndices);
   return true;

@@ -20,11 +20,14 @@ type FinalPassPlaybackRequest = {
 const AudioContextClass =
   window.AudioContext ||
   (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+const MAX_VOLUME_GAIN = 2.5;
 
 export class SegmentAudioEngine {
   private context: AudioContext | null = null;
   private buffer: AudioBuffer | null = null;
   private loadedUrl: string | null = null;
+  private masterGain: GainNode | null = null;
+  private volume = 1;
   private activeNodes: ActiveAudioNode[] = [];
   private activeTimers: number[] = [];
 
@@ -37,9 +40,27 @@ export class SegmentAudioEngine {
       this.context = new AudioContextClass();
     }
 
+    if (!this.masterGain) {
+      this.masterGain = this.context.createGain();
+      this.masterGain.gain.value = this.volume;
+      this.masterGain.connect(this.context.destination);
+    }
+
     if (this.context.state === 'suspended') {
       await this.context.resume();
     }
+  }
+
+  setVolume(volume: number): void {
+    this.volume = Math.min(Math.max(volume, 0), MAX_VOLUME_GAIN);
+
+    if (!this.context || !this.masterGain) {
+      return;
+    }
+
+    const now = this.context.currentTime;
+    this.masterGain.gain.cancelScheduledValues(now);
+    this.masterGain.gain.setTargetAtTime(this.volume, now, 0.01);
   }
 
   async loadFromUrl(url: string): Promise<void> {
@@ -119,10 +140,10 @@ export class SegmentAudioEngine {
         panner.pan.setValueAtTime(pan, startAt);
         source.connect(gain);
         gain.connect(panner);
-        panner.connect(this.context!.destination);
+        panner.connect(this.masterGain ?? this.context!.destination);
       } else {
         source.connect(gain);
-        gain.connect(this.context!.destination);
+        gain.connect(this.masterGain ?? this.context!.destination);
       }
 
       source.start(startAt, startOffset, playableDuration);
@@ -188,10 +209,10 @@ export class SegmentAudioEngine {
           panner.pan.setValueAtTime(pan, startAt);
           source.connect(gain);
           gain.connect(panner);
-          panner.connect(this.context!.destination);
+          panner.connect(this.masterGain ?? this.context!.destination);
         } else {
           source.connect(gain);
-          gain.connect(this.context!.destination);
+          gain.connect(this.masterGain ?? this.context!.destination);
         }
 
         source.start(startAt, startOffset, playableDuration);

@@ -14,10 +14,13 @@ import {
   DEFAULT_ALGORITHM,
   DEFAULT_ARRAY_SIZE,
   DEFAULT_SPEED,
+  DEFAULT_VOLUME,
+  VOLUME_RANGE,
   algorithmLabel,
   clamp,
   createShuffledArray,
   speedToStepDuration,
+  volumeToGain,
 } from './utils/array';
 import {
   MEDIA_AUDIO_URL,
@@ -64,6 +67,7 @@ export default function App() {
   const [algorithm, setAlgorithm] = useState<SortAlgorithm>(DEFAULT_ALGORITHM);
   const [arraySize, setArraySize] = useState(DEFAULT_ARRAY_SIZE);
   const [speed, setSpeed] = useState(DEFAULT_SPEED);
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [baseArray, setBaseArray] = useState<number[]>(() =>
     createShuffledArray(DEFAULT_ARRAY_SIZE),
   );
@@ -207,10 +211,18 @@ export default function App() {
     setSpeed(nextSpeed);
   }
 
+  function handleVolumeChange(nextVolume: number): void {
+    const clampedVolume = clamp(nextVolume, VOLUME_RANGE.min, VOLUME_RANGE.max);
+
+    setVolume(clampedVolume);
+    segmentAudioEngineRef.current.setVolume(volumeToGain(clampedVolume));
+  }
+
   async function handleStart(): Promise<void> {
     const latestMediaState = await refreshMediaSources();
 
     await segmentAudioEngineRef.current.prepare();
+    segmentAudioEngineRef.current.setVolume(volumeToGain(volume));
     segmentAudioEngineRef.current.stop();
     setFinalPassIndex(null);
 
@@ -277,6 +289,7 @@ export default function App() {
           algorithm={algorithm}
           arraySize={arraySize}
           speed={speed}
+          volume={volume}
           status={status}
           values={array}
           comparing={comparing}
@@ -289,6 +302,7 @@ export default function App() {
           onAlgorithmChange={handleAlgorithmChange}
           onArraySizeChange={handleArraySizeChange}
           onSpeedChange={handleSpeedChange}
+          onVolumeChange={handleVolumeChange}
           onGenerateArray={() => handleGenerateArray()}
           onStart={() => {
             void handleStart();

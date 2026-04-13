@@ -3,6 +3,7 @@ import type { SortAlgorithm } from '../types';
 import {
   ARRAY_SIZE_RANGE,
   SPEED_RANGE,
+  VOLUME_RANGE,
   algorithmLabel,
 } from '../utils/array';
 import {
@@ -14,6 +15,7 @@ type VisualizerProps = {
   algorithm: SortAlgorithm;
   arraySize: number;
   speed: number;
+  volume: number;
   status: 'idle' | 'running' | 'paused' | 'completed';
   values: number[];
   comparing: number[];
@@ -26,6 +28,7 @@ type VisualizerProps = {
   onAlgorithmChange: (algorithm: SortAlgorithm) => void;
   onArraySizeChange: (size: number) => void;
   onSpeedChange: (speed: number) => void;
+  onVolumeChange: (volume: number) => void;
   onGenerateArray: () => void;
   onStart: () => void;
   onPause: () => void;
@@ -57,6 +60,7 @@ export function Visualizer({
   algorithm,
   arraySize,
   speed,
+  volume,
   status,
   values,
   comparing,
@@ -69,6 +73,7 @@ export function Visualizer({
   onAlgorithmChange,
   onArraySizeChange,
   onSpeedChange,
+  onVolumeChange,
   onGenerateArray,
   onStart,
   onPause,
@@ -318,6 +323,22 @@ export function Visualizer({
                 value={speed}
                 onChange={(event) =>
                   onSpeedChange(Number(event.target.value))
+                }
+              />
+            </label>
+
+            <label className="side-control-field">
+              <div className="side-control-head">
+                <span>Volume</span>
+                <strong>{volume}</strong>
+              </div>
+              <input
+                type="range"
+                min={VOLUME_RANGE.min}
+                max={VOLUME_RANGE.max}
+                value={volume}
+                onChange={(event) =>
+                  onVolumeChange(Number(event.target.value))
                 }
               />
             </label>

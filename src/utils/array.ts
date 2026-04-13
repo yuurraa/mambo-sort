@@ -1,7 +1,7 @@
 import type { SortAlgorithm } from '../types';
 
 export const ARRAY_SIZE_RANGE = {
-  min: 12,
+  min: 5,
   max: 100,
 };
 

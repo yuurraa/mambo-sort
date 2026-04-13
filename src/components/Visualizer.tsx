@@ -46,6 +46,8 @@ const algorithms: SortAlgorithm[] = [
   'counting',
   'heap',
   'stalin',
+  'thanos',
+  'schizophrenia',
   'bogo',
 ];
 
@@ -155,7 +157,7 @@ export function Visualizer({
                 classes.push('is-swapping');
               }
 
-              if (sortedSet.has(index)) {
+              if (sortedSet.has(index) || getSegmentId(value) === index) {
                 classes.push('is-sorted');
               }
 
@@ -205,8 +207,8 @@ export function Visualizer({
                 >
                   <span className="algorithm-dropdown-value">
                     {algorithmLabel(algorithm)}
-                    {algorithm === 'bogo' || algorithm === 'stalin' ? (
-                      <span className="algorithm-warning-badge" aria-label="Bogo sort warning">
+                    {algorithm === 'bogo' || algorithm === 'stalin' || algorithm === 'thanos' || algorithm === 'schizophrenia' ? (
+                      <span className="algorithm-warning-badge" aria-label="Destructive gag sort warning">
                         (!)
                       </span>
                     ) : null}
@@ -234,7 +236,7 @@ export function Visualizer({
                           }}
                         >
                           <span>{algorithmLabel(option)}</span>
-                          {option === 'bogo' || option === 'stalin' ? (
+                          {option === 'bogo' || option === 'stalin' || option === 'thanos' || option === 'schizophrenia' ? (
                             <span className="algorithm-warning-badge" aria-hidden="true">
                               (!)
                             </span>

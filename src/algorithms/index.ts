@@ -6,7 +6,9 @@ import { heapSortSteps } from './heapSort';
 import { insertionSortSteps } from './insertionSort';
 import { mergeSortSteps } from './mergeSort';
 import { quickSortSteps } from './quickSort';
+import { schizophreniaSortSteps } from './schizophreniaSort';
 import { stalinSortSteps } from './stalinSort';
+import { thanosSortSteps } from './thanosSort';
 
 export function generateSortSteps(
   algorithm: SortAlgorithm,
@@ -27,6 +29,10 @@ export function generateSortSteps(
       return heapSortSteps(input);
     case 'stalin':
       return stalinSortSteps(input);
+    case 'thanos':
+      return thanosSortSteps(input);
+    case 'schizophrenia':
+      return schizophreniaSortSteps(input);
     case 'bogo':
       return bogoSortSteps(input);
   }

@@ -1,25 +1,33 @@
 type ControlPanelProps = {
   status: 'idle' | 'running' | 'paused' | 'completed';
   stepCount: number;
-  swapCount: number;
+  actionCount: number;
+  actionLabel: string;
   elapsedMs: number;
+  usingLabel: string;
   trailingStatLabel: string;
   trailingStatValue: string;
 };
 
 function formatElapsedTime(elapsedMs: number): string {
-  const totalSeconds = Math.floor(elapsedMs / 1000);
+  const totalMilliseconds = Math.floor(elapsedMs);
+  const totalSeconds = Math.floor(totalMilliseconds / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
+  const milliseconds = totalMilliseconds % 1000;
 
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds
+    .toString()
+    .padStart(3, '0')}`;
 }
 
 export function ControlPanel({
   status,
   stepCount,
-  swapCount,
+  actionCount,
+  actionLabel,
   elapsedMs,
+  usingLabel,
   trailingStatLabel,
   trailingStatValue,
 }: ControlPanelProps) {
@@ -49,12 +57,16 @@ export function ControlPanel({
           {status === 'completed' ? 'Completed' : status}
         </div>
         <div className="stat-tile">
-          <span className="stat-label">Swaps</span>
-          <strong>{swapCount}</strong>
+          <span className="stat-label">{actionLabel}</span>
+          <strong>{actionCount}</strong>
         </div>
         <div className="stat-tile">
           <span className="stat-label">Steps</span>
           <strong>{stepCount}</strong>
+        </div>
+        <div className="stat-tile stat-tile-using">
+          <span className="stat-label">Using</span>
+          <strong>{usingLabel}</strong>
         </div>
         <div className="stat-tile">
           <span className="stat-label">Time</span>

@@ -6,6 +6,8 @@ export type SortAlgorithm =
   | 'counting'
   | 'heap'
   | 'stalin'
+  | 'thanos'
+  | 'schizophrenia'
   | 'bogo';
 
 export type SortStepType =
@@ -19,6 +21,7 @@ export type SortStepType =
 export interface SortStep {
   type: SortStepType;
   indices: number[];
+  source?: string;
 }
 
 export interface SortTouchItem {
@@ -53,5 +56,6 @@ export interface VisualState {
   stepIndex: number;
   swapCount: number;
   elapsedMs: number;
+  activeSortLabel: string | null;
   status: 'idle' | 'running' | 'paused' | 'completed';
 }

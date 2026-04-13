@@ -14,6 +14,7 @@ import {
   DEFAULT_ALGORITHM,
   DEFAULT_ARRAY_SIZE,
   DEFAULT_SPEED,
+  algorithmLabel,
   clamp,
   createShuffledArray,
   speedToStepDuration,
@@ -110,7 +111,7 @@ export default function App() {
     stepIndex,
     swapCount,
     elapsedMs,
-    totalSteps,
+    activeSortLabel,
     start,
     pause,
     reset,
@@ -244,15 +245,17 @@ export default function App() {
   }
 
   const progress =
-    algorithm === 'bogo'
-      ? status === 'completed'
-        ? 100
-        : 0
-      : totalSteps === 0
-        ? 100
-        : Math.round((stepIndex / totalSteps) * 100);
-  const trailingStatLabel = algorithm === 'bogo' ? 'Chaos' : 'Progress';
-  const trailingStatValue = `${algorithm === 'bogo' ? calculateChaos(array) : progress}%`;
+    status === 'completed'
+      ? 100
+      : 100 - calculateChaos(array);
+  const usesDeletionCount = algorithm === 'stalin' || algorithm === 'thanos';
+  const actionLabel = usesDeletionCount ? 'Deletions' : 'Swaps';
+  const trailingStatLabel = 'Progress';
+  const trailingStatValue = `${progress}%`;
+  const usingLabel =
+    algorithm === 'schizophrenia'
+      ? activeSortLabel ?? 'Schizophrenia Sort'
+      : algorithmLabel(algorithm);
 
   return (
     <main className="app-shell">
@@ -262,8 +265,10 @@ export default function App() {
         <ControlPanel
           status={status}
           stepCount={stepIndex}
-          swapCount={swapCount}
+          actionCount={swapCount}
+          actionLabel={actionLabel}
           elapsedMs={elapsedMs}
+          usingLabel={usingLabel}
           trailingStatLabel={trailingStatLabel}
           trailingStatValue={trailingStatValue}
         />

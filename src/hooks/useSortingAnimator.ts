@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  createSchizophreniaRuntime,
+  type SchizophreniaRuntime,
+} from '../algorithms/schizophreniaSort';
 import type {
   SortAlgorithm,
   SortStep,
@@ -39,6 +43,7 @@ function createVisualState(array: number[]): VisualState {
     stepIndex: 0,
     swapCount: 0,
     elapsedMs: 0,
+    activeSortLabel: null,
     status: 'idle',
   };
 }
@@ -72,6 +77,9 @@ export function useSortingAnimator({
   const onTouchRef = useRef(onTouch);
   const runStartedAtRef = useRef<number | null>(null);
   const accumulatedElapsedMsRef = useRef(0);
+  const schizophreniaRuntimeRef = useRef<SchizophreniaRuntime>(
+    createSchizophreniaRuntime(initialArray),
+  );
   const bogoStateRef = useRef<BogoRuntimeState>({
     mode: 'check',
     index: 0,
@@ -120,6 +128,7 @@ export function useSortingAnimator({
       sorted: Array.from({ length: visibleLength }, (_, index) => index),
       stepIndex: stepIndexRef.current,
       elapsedMs,
+      activeSortLabel: null,
       status: 'completed',
     };
 
@@ -135,6 +144,9 @@ export function useSortingAnimator({
       index: 0,
       sortedCandidate: true,
     };
+    schizophreniaRuntimeRef.current = createSchizophreniaRuntime(
+      initialArrayRef.current,
+    );
     syncState(createVisualState(initialArrayRef.current));
   }
 
@@ -242,6 +254,7 @@ export function useSortingAnimator({
           ? currentState.swapCount + 1
           : currentState.swapCount,
       elapsedMs: getElapsedMs(timestamp),
+      activeSortLabel: 'Bogo Sort',
       status: 'running',
     };
 
@@ -258,7 +271,10 @@ export function useSortingAnimator({
       return;
     }
 
-    const step = stepsRef.current[stepIndexRef.current];
+    const isSchizophrenia = algorithmRef.current === 'schizophrenia';
+    const step = isSchizophrenia
+      ? schizophreniaRuntimeRef.current.nextStep()
+      : stepsRef.current[stepIndexRef.current];
 
     if (!step) {
       finishAnimation();
@@ -267,7 +283,7 @@ export function useSortingAnimator({
 
     const currentState = stateRef.current;
     const nextArray = [...currentState.array];
-    const nextSorted =
+    let nextSorted =
       step.type === 'mark-sorted'
         ? mergeSorted(currentState.sorted, step.indices)
         : currentState.sorted;
@@ -276,6 +292,7 @@ export function useSortingAnimator({
     let swapping: number[] = [];
     let pivotIndex = currentState.pivotIndex;
     let touchRequest: SortTouchRequest | undefined;
+    const activeSortLabel = step.source ?? null;
 
     switch (step.type) {
       case 'compare':
@@ -308,9 +325,14 @@ export function useSortingAnimator({
         ];
         break;
       }
-      case 'delete':
-        nextArray.splice(step.indices[0] ?? 0, 1);
+      case 'delete': {
+        const deletedIndex = step.indices[0] ?? 0;
+        nextArray.splice(deletedIndex, 1);
+        nextSorted = currentState.sorted
+          .filter((index) => index !== deletedIndex)
+          .map((index) => (index > deletedIndex ? index - 1 : index));
         break;
+      }
       case 'mark-sorted':
         break;
       case 'set-pivot':
@@ -332,10 +354,15 @@ export function useSortingAnimator({
       currentStepType: step.type,
       stepIndex: stepIndexRef.current,
       swapCount:
-        step.type === 'swap'
+        step.type === 'swap' ||
+        (
+          step.type === 'delete' &&
+          (algorithmRef.current === 'stalin' || algorithmRef.current === 'thanos')
+        )
           ? currentState.swapCount + 1
           : currentState.swapCount,
       elapsedMs: getElapsedMs(timestamp),
+      activeSortLabel,
       status: 'running',
     };
 
@@ -345,7 +372,7 @@ export function useSortingAnimator({
       onTouchRef.current?.(touchRequest);
     }
 
-    if (stepIndexRef.current >= stepsRef.current.length) {
+    if (!isSchizophrenia && stepIndexRef.current >= stepsRef.current.length) {
       finishAnimation();
     }
   }
@@ -380,7 +407,11 @@ export function useSortingAnimator({
   }
 
   function start(): void {
-    if (algorithmRef.current !== 'bogo' && stepsRef.current.length === 0) {
+    if (
+      algorithmRef.current !== 'bogo' &&
+      algorithmRef.current !== 'schizophrenia' &&
+      stepsRef.current.length === 0
+    ) {
       finishAnimation();
       return;
     }
@@ -388,7 +419,9 @@ export function useSortingAnimator({
     if (
       algorithmRef.current === 'bogo'
         ? stateRef.current.status === 'completed'
-        : stepIndexRef.current >= stepsRef.current.length
+        : algorithmRef.current === 'schizophrenia'
+          ? stateRef.current.status === 'completed'
+          : stepIndexRef.current >= stepsRef.current.length
     ) {
       stepIndexRef.current = 0;
       accumulatedElapsedMsRef.current = 0;
@@ -397,6 +430,9 @@ export function useSortingAnimator({
         index: 0,
         sortedCandidate: true,
       };
+      schizophreniaRuntimeRef.current = createSchizophreniaRuntime(
+        initialArrayRef.current,
+      );
       syncState(createVisualState(initialArrayRef.current));
     }
 
@@ -439,6 +475,7 @@ export function useSortingAnimator({
       index: 0,
       sortedCandidate: true,
     };
+    schizophreniaRuntimeRef.current = createSchizophreniaRuntime(initialArray);
     syncState(createVisualState(initialArray));
     stopLoop();
 
@@ -449,7 +486,7 @@ export function useSortingAnimator({
 
   return {
     ...visualState,
-    totalSteps: algorithm === 'bogo' ? 0 : steps.length,
+    totalSteps: algorithm === 'bogo' || algorithm === 'schizophrenia' ? 0 : steps.length,
     start,
     pause,
     reset,

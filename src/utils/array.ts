@@ -50,6 +50,10 @@ export function algorithmLabel(algorithm: SortAlgorithm): string {
       return 'Heap Sort';
     case 'stalin':
       return 'Stalin Sort';
+    case 'thanos':
+      return 'Thanos Sort';
+    case 'schizophrenia':
+      return 'Schizophrenia Sort';
     case 'bogo':
       return 'Bogo Sort';
   }

@@ -21,6 +21,7 @@ type VisualizerProps = {
   sorted: number[];
   finalPassIndex: number | null;
   pivotIndex: number | null;
+  activeSortLabel: string | null;
   imageUrl: string | null;
   onAlgorithmChange: (algorithm: SortAlgorithm) => void;
   onArraySizeChange: (size: number) => void;
@@ -48,6 +49,7 @@ const algorithms: SortAlgorithm[] = [
   'stalin',
   'thanos',
   'schizophrenia',
+  'kidnapping',
   'bogo',
 ];
 
@@ -62,6 +64,7 @@ export function Visualizer({
   sorted,
   finalPassIndex,
   pivotIndex,
+  activeSortLabel,
   imageUrl,
   onAlgorithmChange,
   onArraySizeChange,
@@ -78,6 +81,9 @@ export function Visualizer({
   const sortedSet = new Set(sorted);
   const isRunning = status === 'running';
   const canPlay = status !== 'running';
+  const isKidnapping = activeSortLabel === 'Kidnapping';
+  const isReturning = activeSortLabel === 'Returning';
+  const isRedistributing = activeSortLabel === 'Redistribution';
 
   useEffect(() => {
     if (!isRunning) {
@@ -141,6 +147,25 @@ export function Visualizer({
 
       <div className="visualizer-layout">
         <div className="visualizer-stage">
+          {isKidnapping || isReturning || isRedistributing ? (
+            <div
+              className={`sort-event-badge ${
+                isKidnapping
+                  ? 'is-kidnapping'
+                  : isReturning
+                    ? 'is-returning'
+                    : 'is-redistributing'
+              }`}
+              aria-live="polite"
+            >
+              {isKidnapping
+                ? 'Kidnapping segments'
+                : isReturning
+                  ? 'Returning segments'
+                  : 'Redistributing hostages'}
+            </div>
+          ) : null}
+
           <div className="bars-wrapper">
             {values.map((value, index) => {
               const classes = ['bar'];
@@ -163,6 +188,21 @@ export function Visualizer({
 
               if (finalPassIndex !== null && index <= finalPassIndex) {
                 classes.push('is-final-pass');
+              }
+
+              if (isKidnapping && comparingSet.has(index)) {
+                classes.push('is-kidnapped');
+              }
+
+              if (
+                isReturning &&
+                (comparingSet.has(index) || swappingSet.has(index))
+              ) {
+                classes.push('is-returning');
+              }
+
+              if (isRedistributing && swappingSet.has(index)) {
+                classes.push('is-redistributing');
               }
 
               return (
@@ -207,8 +247,8 @@ export function Visualizer({
                 >
                   <span className="algorithm-dropdown-value">
                     {algorithmLabel(algorithm)}
-                    {algorithm === 'bogo' || algorithm === 'stalin' || algorithm === 'thanos' || algorithm === 'schizophrenia' ? (
-                      <span className="algorithm-warning-badge" aria-label="Destructive gag sort warning">
+                    {algorithm === 'bogo' || algorithm === 'stalin' || algorithm === 'thanos' || algorithm === 'schizophrenia' || algorithm === 'kidnapping' ? (
+                      <span className="algorithm-warning-badge" aria-label="Gag sort warning">
                         (!)
                       </span>
                     ) : null}
@@ -236,7 +276,7 @@ export function Visualizer({
                           }}
                         >
                           <span>{algorithmLabel(option)}</span>
-                          {option === 'bogo' || option === 'stalin' || option === 'thanos' || option === 'schizophrenia' ? (
+                          {option === 'bogo' || option === 'stalin' || option === 'thanos' || option === 'schizophrenia' || option === 'kidnapping' ? (
                             <span className="algorithm-warning-badge" aria-hidden="true">
                               (!)
                             </span>

@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  createKidnappingRuntime,
+  type KidnappingRuntime,
+} from '../algorithms/kidnappingSort';
+import {
   createSchizophreniaRuntime,
   type SchizophreniaRuntime,
 } from '../algorithms/schizophreniaSort';
@@ -70,6 +74,7 @@ export function useSortingAnimator({
   const lastFrameAtRef = useRef<number | null>(null);
   const isRunningRef = useRef(false);
   const stepDurationRef = useRef(stepDurationMs);
+  const currentStepDelayRef = useRef(stepDurationMs);
   const stateRef = useRef<VisualState>(createVisualState(initialArray));
   const stepsRef = useRef<SortStep[]>(steps);
   const algorithmRef = useRef<SortAlgorithm>(algorithm);
@@ -77,6 +82,9 @@ export function useSortingAnimator({
   const onTouchRef = useRef(onTouch);
   const runStartedAtRef = useRef<number | null>(null);
   const accumulatedElapsedMsRef = useRef(0);
+  const kidnappingRuntimeRef = useRef<KidnappingRuntime>(
+    createKidnappingRuntime(initialArray),
+  );
   const schizophreniaRuntimeRef = useRef<SchizophreniaRuntime>(
     createSchizophreniaRuntime(initialArray),
   );
@@ -117,6 +125,7 @@ export function useSortingAnimator({
     const elapsedMs = getElapsedMs(lastFrameAtRef.current ?? undefined);
     accumulatedElapsedMsRef.current = elapsedMs;
     stopLoop();
+    currentStepDelayRef.current = stepDurationRef.current;
 
     const visibleLength = stateRef.current.array.length;
     const completeState: VisualState = {
@@ -139,11 +148,15 @@ export function useSortingAnimator({
     stopLoop();
     stepIndexRef.current = 0;
     accumulatedElapsedMsRef.current = 0;
+    currentStepDelayRef.current = stepDurationRef.current;
     bogoStateRef.current = {
       mode: 'check',
       index: 0,
       sortedCandidate: true,
     };
+    kidnappingRuntimeRef.current = createKidnappingRuntime(
+      initialArrayRef.current,
+    );
     schizophreniaRuntimeRef.current = createSchizophreniaRuntime(
       initialArrayRef.current,
     );
@@ -240,6 +253,7 @@ export function useSortingAnimator({
     }
 
     stepIndexRef.current += 1;
+    currentStepDelayRef.current = stepDurationRef.current;
 
     const nextState: VisualState = {
       array: nextArray,
@@ -271,10 +285,15 @@ export function useSortingAnimator({
       return;
     }
 
-    const isSchizophrenia = algorithmRef.current === 'schizophrenia';
-    const step = isSchizophrenia
-      ? schizophreniaRuntimeRef.current.nextStep()
-      : stepsRef.current[stepIndexRef.current];
+    const isRuntimeSort =
+      algorithmRef.current === 'schizophrenia' ||
+      algorithmRef.current === 'kidnapping';
+    const step =
+      algorithmRef.current === 'schizophrenia'
+          ? schizophreniaRuntimeRef.current.nextStep()
+        : algorithmRef.current === 'kidnapping'
+          ? kidnappingRuntimeRef.current.nextStep()
+          : stepsRef.current[stepIndexRef.current];
 
     if (!step) {
       finishAnimation();
@@ -344,6 +363,7 @@ export function useSortingAnimator({
     }
 
     stepIndexRef.current += 1;
+    currentStepDelayRef.current = step.durationMs ?? stepDurationRef.current;
 
     const nextState: VisualState = {
       array: nextArray,
@@ -372,7 +392,7 @@ export function useSortingAnimator({
       onTouchRef.current?.(touchRequest);
     }
 
-    if (!isSchizophrenia && stepIndexRef.current >= stepsRef.current.length) {
+    if (!isRuntimeSort && stepIndexRef.current >= stepsRef.current.length) {
       finishAnimation();
     }
   }
@@ -391,11 +411,12 @@ export function useSortingAnimator({
     while (
       isRunningRef.current &&
       lastFrameAtRef.current !== null &&
-      timestamp - lastFrameAtRef.current >= stepDurationRef.current &&
+      timestamp - lastFrameAtRef.current >= currentStepDelayRef.current &&
       stepsProcessed < MAX_STEPS_PER_FRAME
     ) {
+      const currentStepDelay = currentStepDelayRef.current;
       const stepTimestamp: number =
-        lastFrameAtRef.current + stepDurationRef.current;
+        lastFrameAtRef.current + currentStepDelay;
       lastFrameAtRef.current = stepTimestamp;
       advance(stepTimestamp);
       stepsProcessed += 1;
@@ -410,6 +431,7 @@ export function useSortingAnimator({
     if (
       algorithmRef.current !== 'bogo' &&
       algorithmRef.current !== 'schizophrenia' &&
+      algorithmRef.current !== 'kidnapping' &&
       stepsRef.current.length === 0
     ) {
       finishAnimation();
@@ -419,17 +441,22 @@ export function useSortingAnimator({
     if (
       algorithmRef.current === 'bogo'
         ? stateRef.current.status === 'completed'
-        : algorithmRef.current === 'schizophrenia'
+        : algorithmRef.current === 'schizophrenia' ||
+            algorithmRef.current === 'kidnapping'
           ? stateRef.current.status === 'completed'
           : stepIndexRef.current >= stepsRef.current.length
     ) {
       stepIndexRef.current = 0;
       accumulatedElapsedMsRef.current = 0;
+      currentStepDelayRef.current = stepDurationRef.current;
       bogoStateRef.current = {
         mode: 'check',
         index: 0,
         sortedCandidate: true,
       };
+      kidnappingRuntimeRef.current = createKidnappingRuntime(
+        initialArrayRef.current,
+      );
       schizophreniaRuntimeRef.current = createSchizophreniaRuntime(
         initialArrayRef.current,
       );
@@ -470,11 +497,13 @@ export function useSortingAnimator({
     initialArrayRef.current = [...initialArray];
     stepIndexRef.current = 0;
     accumulatedElapsedMsRef.current = 0;
+    currentStepDelayRef.current = stepDurationRef.current;
     bogoStateRef.current = {
       mode: 'check',
       index: 0,
       sortedCandidate: true,
     };
+    kidnappingRuntimeRef.current = createKidnappingRuntime(initialArray);
     schizophreniaRuntimeRef.current = createSchizophreniaRuntime(initialArray);
     syncState(createVisualState(initialArray));
     stopLoop();
@@ -486,7 +515,12 @@ export function useSortingAnimator({
 
   return {
     ...visualState,
-    totalSteps: algorithm === 'bogo' || algorithm === 'schizophrenia' ? 0 : steps.length,
+    totalSteps:
+      algorithm === 'bogo' ||
+      algorithm === 'schizophrenia' ||
+      algorithm === 'kidnapping'
+        ? 0
+        : steps.length,
     start,
     pause,
     reset,

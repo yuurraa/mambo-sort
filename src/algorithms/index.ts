@@ -4,6 +4,7 @@ import { bubbleSortSteps } from './bubbleSort';
 import { countingSortSteps } from './countingSort';
 import { heapSortSteps } from './heapSort';
 import { insertionSortSteps } from './insertionSort';
+import { kidnappingSortSteps } from './kidnappingSort';
 import { mergeSortSteps } from './mergeSort';
 import { quickSortSteps } from './quickSort';
 import { schizophreniaSortSteps } from './schizophreniaSort';
@@ -33,6 +34,8 @@ export function generateSortSteps(
       return thanosSortSteps(input);
     case 'schizophrenia':
       return schizophreniaSortSteps(input);
+    case 'kidnapping':
+      return kidnappingSortSteps(input);
     case 'bogo':
       return bogoSortSteps(input);
   }

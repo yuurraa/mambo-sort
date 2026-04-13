@@ -8,6 +8,7 @@ export type SortAlgorithm =
   | 'stalin'
   | 'thanos'
   | 'schizophrenia'
+  | 'kidnapping'
   | 'bogo';
 
 export type SortStepType =
@@ -22,6 +23,7 @@ export interface SortStep {
   type: SortStepType;
   indices: number[];
   source?: string;
+  durationMs?: number;
 }
 
 export interface SortTouchItem {

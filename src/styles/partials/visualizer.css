@@ -68,6 +68,44 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.sort-event-badge {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.48rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+  animation: event-badge-pop 180ms ease both;
+}
+
+.sort-event-badge.is-kidnapping {
+  color: #ffe1ef;
+  background: rgba(105, 20, 52, 0.72);
+  border: 1px solid rgba(255, 82, 146, 0.48);
+  box-shadow: 0 0 30px rgba(255, 64, 129, 0.26);
+}
+
+.sort-event-badge.is-redistributing {
+  color: #fff2cf;
+  background: rgba(111, 66, 12, 0.74);
+  border: 1px solid rgba(255, 193, 85, 0.5);
+  box-shadow: 0 0 30px rgba(255, 188, 72, 0.28);
+}
+
+.sort-event-badge.is-returning {
+  color: #ddf2ff;
+  background: rgba(20, 65, 116, 0.76);
+  border: 1px solid rgba(91, 192, 255, 0.52);
+  box-shadow: 0 0 30px rgba(83, 180, 255, 0.3);
+}
+
 .bars-wrapper {
   height: 100%;
   display: flex;
@@ -204,4 +242,91 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 0 30px rgba(61, 217, 147, 0.22);
+}
+
+.bar.is-kidnapped {
+  transform: translateY(-10px) scale(1.035);
+  z-index: 1;
+  filter: saturate(1.22);
+  animation: hostage-pulse 420ms ease-in-out infinite alternate;
+}
+
+.bar.is-kidnapped .bar-segment {
+  border-color: rgba(255, 82, 146, 0.64);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 28px rgba(255, 64, 129, 0.42);
+}
+
+.bar.is-kidnapped .bar-status {
+  background: linear-gradient(180deg, #ff9bc5, #e51d68);
+  border-color: rgba(255, 82, 146, 0.5);
+}
+
+.bar.is-redistributing {
+  transform: translateY(-7px) rotate(-1deg) scale(1.025);
+  z-index: 1;
+}
+
+.bar.is-redistributing .bar-segment {
+  border-color: rgba(255, 198, 96, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 30px rgba(255, 188, 72, 0.42);
+}
+
+.bar.is-redistributing .bar-status {
+  background: linear-gradient(180deg, #ffe6a6, #ff9f2f);
+  border-color: rgba(255, 198, 96, 0.5);
+}
+
+.bar.is-returning {
+  transform: translateY(-10px) scale(1.035);
+  z-index: 1;
+  filter: saturate(1.24);
+  animation: return-pulse 420ms ease-in-out infinite alternate;
+}
+
+.bar.is-returning .bar-segment {
+  border-color: rgba(91, 192, 255, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 28px rgba(83, 180, 255, 0.44);
+}
+
+.bar.is-returning .bar-status {
+  background: linear-gradient(180deg, #a2e4ff, #348cff);
+  border-color: rgba(91, 192, 255, 0.52);
+}
+
+@keyframes event-badge-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -0.35rem) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes hostage-pulse {
+  from {
+    box-shadow: 0 0 18px rgba(255, 64, 129, 0.18);
+  }
+
+  to {
+    box-shadow: 0 0 34px rgba(255, 64, 129, 0.44);
+  }
+}
+
+@keyframes return-pulse {
+  from {
+    box-shadow: 0 0 18px rgba(83, 180, 255, 0.18);
+  }
+
+  to {
+    box-shadow: 0 0 34px rgba(83, 180, 255, 0.46);
+  }
 }

@@ -253,8 +253,8 @@ export default function App() {
   const trailingStatLabel = 'Progress';
   const trailingStatValue = `${progress}%`;
   const usingLabel =
-    algorithm === 'schizophrenia'
-      ? activeSortLabel ?? 'Schizophrenia Sort'
+    algorithm === 'schizophrenia' || algorithm === 'kidnapping'
+      ? activeSortLabel ?? algorithmLabel(algorithm)
       : algorithmLabel(algorithm);
 
   return (
@@ -284,6 +284,7 @@ export default function App() {
           sorted={sorted}
           finalPassIndex={finalPassIndex}
           pivotIndex={pivotIndex}
+          activeSortLabel={activeSortLabel}
           imageUrl={mediaState.imageUrl}
           onAlgorithmChange={handleAlgorithmChange}
           onArraySizeChange={handleArraySizeChange}

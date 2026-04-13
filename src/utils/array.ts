@@ -54,6 +54,8 @@ export function algorithmLabel(algorithm: SortAlgorithm): string {
       return 'Thanos Sort';
     case 'schizophrenia':
       return 'Schizophrenia Sort';
+    case 'kidnapping':
+      return 'Kidnapping Sort';
     case 'bogo':
       return 'Bogo Sort';
   }
